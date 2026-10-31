@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenderaan yang Pernah Saya Naiki!</title>
+    <!-- Tailwind CSS untuk rekaan moden dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font ceria untuk murid sekolah -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Baloo 2', cursive; }
+        
+        /* Latar belakang animasi ceria */
+        .bg-animated {
+            background: linear-gradient(-45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a);
+            background-size: 400% 400%;
+            animation: gradientBg 15s ease infinite;
+        }
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Rekaan kad 3D */
+        .card-3d {
+            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        
+        /* Rekaan butang 3D */
+        .btn-3d {
+            box-shadow: 0 6px 0 #166534; /* Hijau gelap */
+            transition: all 0.2s;
+        }
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #166534;
+        }
+        .btn-3d:disabled {
+            background-color: #9ca3af;
+            box-shadow: 0 6px 0 #4b5563;
+            cursor: not-allowed;
+            transform: translateY(0);
+        }
+
+        .checkmark {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Progress bar animasi */
+        .progress-fill {
+            transition: width 1.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-animated min-h-screen p-4 flex items-center justify-center">
+
+    <div class="max-w-3xl w-full bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-10 shadow-2xl border-4 border-white">
+        
+        <!-- HALAMAN SOALAN (Set Induksi) -->
+        <div id="halaman-soalan">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-center text-blue-600 mb-2 drop-shadow-sm">
+                Kenderaan yang Pernah Saya Naiki! 🚗💨
+            </h1>
+            <p class="text-center text-lg md:text-xl text-gray-700 font-semibold mb-6">
+                Klik semua gambar kenderaan yang pernah kamu naiki. Kamu boleh memilih lebih daripada satu jawapan.
+            </p>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8" id="grid-kenderaan">
+                <!-- Kad dijana menggunakan JavaScript -->
+            </div>
+
+            <div class="text-center">
+                <button id="btn-submit" disabled class="btn-3d bg-green-500 hover:bg-green-400 text-white text-xl font-bold py-4 px-10 rounded-2xl w-full md:w-auto">
+                    SUBMIT JAWAPAN 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- HALAMAN KEPUTUSAN (Instagram Polls Style) -->
+        <div id="halaman-keputusan" class="hidden">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-center text-purple-600 mb-2 drop-shadow-sm">
+                📊 Keputusan Undian Kelas
+            </h1>
+            
+            <!-- Amaran jika database tidak disambung -->
+            <div id="amaran-db" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6 text-sm">
+                <strong>Perhatian:</strong> Sistem pangkalan data (Firebase) belum disediakan sepenuhnya. Ini hanyalah paparan simulasi keputusan anda. Sila ikuti arahan guru untuk pengumpulan undian sebenar kelas.
+            </div>
+
+            <div class="text-center text-gray-600 font-semibold mb-6 text-lg">
+                Jumlah responden: <span id="jumlah-responden" class="text-blue-600 font-bold text-2xl">0</span> murid
+            </div>
+
+            <div id="senarai-keputusan" class="space-y-4 mb-10">
+                <!-- Bar keputusan dijana menggunakan JavaScript -->
+            </div>
+
+            <div class="bg-blue-50 border-4 border-blue-200 p-6 rounded-2xl text-center shadow-inner">
+                <h3 class="text-2xl font-bold text-blue-700 mb-3">Refleksi 🤔</h3>
+                <p class="text-xl text-gray-800 leading-relaxed font-semibold">
+                    "Wah, rupanya kita pernah menaiki pelbagai jenis kenderaan! Apakah adab yang perlu kita amalkan ketika menaiki kenderaan?"
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK (Sedia untuk digunakan) -->
+    <!-- Jika anda ingin menggunakan undian sebenar, buang komen pada kod ini dan masukkan config anda -->
+    <!--
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, updateDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // GANTIKAN DENGAN KONFIGURASI FIREBASE ANDA DI SINI
+        const firebaseConfig = {
+            apiKey: "LETAK_API_KEY_DI_SINI",
+            authDomain: "LETAK_DOMAIN_DI_SINI",
+            projectId: "LETAK_PROJECT_ID_DI_SINI",
+            storageBucket: "LETAK_BUCKET_DI_SINI",
+            messagingSenderId: "LETAK_SENDER_ID_DI_SINI",
+            appId: "LETAK_APP_ID_DI_SINI"
+        };
+        // ... (Kod untuk kemas kini Firestore)
+    </script>
+    -->
+
+    <script>
+        // Data Kenderaan
+        const senaraiKenderaan = [
+            { id: 'basikal', nama: 'Basikal', emoji: '🚲', warna: 'bg-orange-100' },
+            { id: 'motosikal', nama: 'Motosikal', emoji: '🏍️', warna: 'bg-red-100' },
+            { id: 'kereta', nama: 'Kereta', emoji: '🚗', warna: 'bg-blue-100' },
+            { id: 'bas', nama: 'Bas', emoji: '🚌', warna: 'bg-yellow-100' },
+            { id: 'kereta_api', nama: 'Kereta api', emoji: '🚆', warna: 'bg-emerald-100' },
+            { id: 'kapal_terbang', nama: 'Kapal terbang', emoji: '✈️', warna: 'bg-cyan-100' }
+        ];
+
+        let pilihanMurid = new Set();
+        let firebaseBerfungsi = false; // Set kepada true apabila Firebase disiapkan
+
+        // 1. Bina Paparan Kad Kenderaan
+        const grid = document.getElementById('grid-kenderaan');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        senaraiKenderaan.forEach(k => {
+            const kad = document.createElement('div');
+            kad.className = `card-3d relative cursor-pointer rounded-2xl border-4 border-transparent p-4 flex flex-col items-center justify-center h-40 md:h-48 ${k.warna} hover:bg-opacity-80`;
+            kad.id = `kad-${k.id}`;
+            kad.onclick = () => togglePilihan(k.id, kad);
+
+            kad.innerHTML = `
+                <div id="check-${k.id}" class="hidden checkmark absolute top-2 right-2 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-md border-2 border-white z-10">✓</div>
+                <div class="text-6xl md:text-7xl mb-2 filter drop-shadow-md transition-transform duration-200" id="emoji-${k.id}">${k.emoji}</div>
+                <div class="font-bold text-gray-800 text-lg md:text-xl text-center">${k.nama}</div>
+            `;
+            grid.appendChild(kad);
+        });
+
+        // 2. Fungsi Pilih/Batal Kenderaan
+        function togglePilihan(id, elemenKad) {
+            const checkIcon = document.getElementById(`check-${id}`);
+            const emojiDiv = document.getElementById(`emoji-${id}`);
+
+            if (pilihanMurid.has(id)) {
+                // Batal pilihan
+                pilihanMurid.delete(id);
+                elemenKad.classList.remove('border-green-500', 'bg-green-50');
+                checkIcon.classList.add('hidden');
+                emojiDiv.classList.remove('scale-110');
+            } else {
+                // Tambah pilihan
+                pilihanMurid.add(id);
+                elemenKad.classList.add('border-green-500', 'bg-green-50');
+                checkIcon.classList.remove('hidden');
+                emojiDiv.classList.add('scale-110');
+            }
+
+            // Kemas kini status butang Submit
+            btnSubmit.disabled = pilihanMurid.size === 0;
+        }
+
+        // 3. Fungsi Hantar Undian
+        btnSubmit.addEventListener('click', () => {
+            document.getElementById('halaman-soalan').classList.add('hidden');
+            document.getElementById('halaman-keputusan').classList.remove('hidden');
+
+            if (!firebaseBerfungsi) {
+                // SIMULASI: Jika Firebase belum disambung, tunjuk hasil acah (mock data) berdasarkan undian sendiri + sedikit nombor rawak
+                paparKeputusanSimulasi();
+            } else {
+                // LOGIK SEBENAR FIREBASE AKAN BERLAKU DI SINI
+                document.getElementById('amaran-db').classList.add('hidden');
+            }
+        });
+
+        // 4. Papar Keputusan (Gaya Instagram Polls)
+        function paparKeputusanSimulasi() {
+            const senaraiKeputusan = document.getElementById('senarai-keputusan');
+            // Mock jumlah responden
+            const jumlahMurid = Math.floor(Math.random() * 10) + 20 + 1; // 20-30 murid + 1 (murid ini)
+            document.getElementById('jumlah-responden').innerText = jumlahMurid;
+
+            senaraiKenderaan.forEach((k, index) => {
+                // Mock pengiraan: Jika murid pilih, tambah sikit nombor rawak.
+                let baseVotes = Math.floor(Math.random() * (jumlahMurid - 5));
+                if (pilihanMurid.has(k.id)) baseVotes += 5; // Pastikan pilihan murid ada banyak sikit undian
+                
+                let peratus = Math.round((baseVotes / jumlahMurid) * 100);
+                if (peratus > 100) peratus = 100;
+
+                const didSelect = pilihanMurid.has(k.id);
+
+                const bar = document.createElement('div');
+                bar.className = 'relative w-full bg-gray-200 rounded-xl h-14 md:h-16 overflow-hidden shadow-sm flex items-center border-2 ' + (didSelect ? 'border-green-400' : 'border-transparent');
+                
+                bar.innerHTML = `
+                    <div class="progress-fill absolute top-0 left-0 h-full ${didSelect ? 'bg-green-200' : k.warna} bg-opacity-70" style="width: 0%"></div>
+                    <div class="relative z-10 flex justify-between items-center w-full px-4 md:px-6">
+                        <span class="font-bold text-lg md:text-xl text-gray-800 flex items-center gap-2">
+                            ${k.emoji} ${k.nama} ${didSelect ? '<span class="text-green-600 text-sm md:text-base">✓ Pilihan Kamu</span>' : ''}
+                        </span>
+                        <span class="font-extrabold text-xl md:text-2xl text-gray-800 bg-white/50 px-2 rounded-lg">${peratus}%</span>
+                    </div>
+                `;
+                
+                senaraiKeputusan.appendChild(bar);
+
+                // Animasi panjang bar
+                setTimeout(() => {
+                    bar.querySelector('.progress-fill').style.width = `${peratus}%`;
+                }, 100 + (index * 150));
+            });
+        }
+    </script>
+</body>
+</html>
